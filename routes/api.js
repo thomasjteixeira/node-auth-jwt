@@ -16,7 +16,7 @@ router.post('/signup', function(req, res) {
         username: req.body.username,
         password: req.body.password
       });
-      // save the user
+      // salvar o usuário
       newUser.save(function(err) {
         if (err) {
           return res.json({success: false, msg: 'Username already exists.'});
@@ -26,7 +26,7 @@ router.post('/signup', function(req, res) {
     }
   });
 
-  //Create a router for login or sign-in.
+  //Rota de login ou sign-in.
 
   router.post('/signin', function(req, res) {
     User.findOne({
@@ -35,24 +35,25 @@ router.post('/signup', function(req, res) {
       if (err) throw err;
   
       if (!user) {
-        res.status(401).send({success: false, msg: 'Authentication failed. User not found.'});
+        res.status(401).send({success: false, msg: 'Falha na Autenticação. Usuário não encontrado.'});
       } else {
-        // check if password matches
+        // verificar se a senha está correta
         user.comparePassword(req.body.password, function (err, isMatch) {
           if (isMatch && !err) {
-            // if user is found and password is right create a token
+            // Se o usuário e senha estão corretos, cria o token
             var token = jwt.sign(user.toJSON(), config.secret);
-            // return the information including token as JSON
+            // returna a informação junto com o token como JSON
             res.json({success: true, token: 'JWT ' + token});
           } else {
-            res.status(401).send({success: false, msg: 'Authentication failed. Wrong password.'});
+            res.status(401).send({success: false, msg: 'Falha na Autenticação. Senha incorreta.'});
           }
         });
       }
     });
   });
 
-// Create a router to add a new book that only accessible to an authorized user.
+// Crea a rota para adicionar um novo livro. 
+//Rota restrita para usuários autorizados.
 
 router.post('/book', passport.authenticate('jwt', { session: false}), function(req, res) {
     var token = getToken(req.headers);
@@ -76,7 +77,8 @@ router.post('/book', passport.authenticate('jwt', { session: false}), function(r
     }
   });
 
-  //Create a router for getting a list of books that accessible for an authorized user.
+  //Rota para listar os livros. 
+  //Rota restrita para usuários autorizados.
 
   router.get('/book', passport.authenticate('jwt', { session: false}), function(req, res) {
     var token = getToken(req.headers);
@@ -90,7 +92,7 @@ router.post('/book', passport.authenticate('jwt', { session: false}), function(r
     }
   });
 
-// Create a function for parse authorization token from request headers.
+// Função para analisar o token de autorização dos cabeçalhos de solicitação.
 
 getToken = function (headers) {
     if (headers && headers.authorization) {
@@ -106,4 +108,3 @@ getToken = function (headers) {
   };
 
 module.exports = router;
-
